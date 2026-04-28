@@ -38,23 +38,25 @@ public class SecurityConfig {
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
             )
             .authorizeHttpRequests(auth -> auth
-            	    .requestMatchers(
-            	            "/", "/index.html",
-            	            "/signup.html", "/login.html", "/admin-login.html",
-            	            "/customer-home.html", "/view-cart.html",
-            	            "/admin-home.html",
-            	            "/add-product.html", "/all-products-admin.html",
-            	            "/edit-product.html", "/view-product-admin.html",
-            	            "/css/**", "/js/**"
-            	    ).permitAll()
-            	    .requestMatchers("/auth/**", "/hello").permitAll()
-            	    .requestMatchers("/customer/cart/**").hasRole("USER")
-            	    .requestMatchers("/customer/payment/**").hasRole("USER")
-            	    .requestMatchers("/products/**").hasAnyRole("USER", "ADMIN")
-            	    .requestMatchers("/admin/**").hasRole("ADMIN")
-            	    .requestMatchers("/customer/**").hasAnyRole("USER", "ADMIN")
-            	    .anyRequest().authenticated()
-            	)
+                .requestMatchers(
+                    "/", "/index.html",
+                    "/signup.html", "/login.html", "/admin-login.html",
+                    "/customer-home.html", "/view-cart.html",
+                    "/admin-home.html",
+                    "/add-product.html", "/all-products-admin.html",
+                    "/edit-product.html", "/view-product-admin.html",
+                    "/css/**", "/js/**",
+                    "/auth/**", "/hello"
+                ).permitAll()
+
+                .requestMatchers("/customer/cart/**").hasRole("USER")
+                .requestMatchers("/customer/payment/**").hasRole("USER")
+                .requestMatchers("/products/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/customer/**").hasAnyRole("USER", "ADMIN")
+
+                .anyRequest().authenticated()
+            )
             .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .formLogin(form -> form.disable())
@@ -63,15 +65,21 @@ public class SecurityConfig {
         return http.build();
     }
 
+    // ✅ FIXED AUTH PROVIDER (IMPORTANT FIX)
     @Bean
     public AuthenticationProvider authenticationProvider() {
-        DaoAuthenticationProvider provider = new DaoAuthenticationProvider(customUserDetailsService);
+
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+
+        provider.setUserDetailsService(customUserDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
+
         return provider;
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration)
+            throws Exception {
         return configuration.getAuthenticationManager();
     }
 

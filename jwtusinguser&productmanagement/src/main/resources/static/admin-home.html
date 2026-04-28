@@ -2,26 +2,56 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Admin Home</title>
-  <link rel="stylesheet" href="/css/style.css" />
+  <title>Admin Dashboard</title>
+  <link rel="stylesheet" href="/css/style2.css" />
 </head>
 <body>
-  <div class="container">
-    <h1>Admin Dashboard</h1>
-    <p id="welcomeText"></p>
 
-    <div class="actions">
-      <a href="/add-product.html">Add Product</a>
-      <a href="/all-products-admin.html">View All Products</a>
-      <button onclick="logout()">Logout</button>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <h2 class="logo">⚙️ Admin Panel</h2>
+
+    <div class="nav-item active">🏠 Dashboard</div>
+    <div class="nav-item" onclick="window.location.href='/add-product.html'">
+      ➕ Add Product
+    </div>
+    <div class="nav-item" onclick="window.location.href='/all-products-admin.html'">
+      📦 All Products
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <h1>Admin Dashboard</h1>
+
+      <div class="user-info">
+        <span id="welcomeText"></span>
+        <button id="themeToggle">🌙</button>
+        <button class="btn-logout" onclick="logout()">Logout</button>
+      </div>
     </div>
 
-    <hr />
+    <!-- CONTENT -->
+    <div class="content">
 
-    <button onclick="loadAdminData()">Load Admin API Test</button>
-    <p id="apiResult"></p>
+      <button class="primary-btn" onclick="loadAdminData()">
+        Load Admin API Test
+      </button>
+
+      <p id="apiResult"></p>
+
+    </div>
+
   </div>
+</div>
 
-  <script src="/js/admin.js"></script>
+<script src="/js/admin.js"></script>
+<script src="/js/toggle.js"></script>
+
 </body>
 </html>

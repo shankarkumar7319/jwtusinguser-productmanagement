@@ -3,24 +3,49 @@
 <head>
   <meta charset="UTF-8" />
   <title>View Cart</title>
-  <link rel="stylesheet" href="/css/style.css" />
+  <link rel="stylesheet" href="/css/style2.css" />
 </head>
 <body>
-  <div class="container wide-container">
-    <h1>My Cart</h1>
-    <p id="welcomeText"></p>
+  
+	<div class="app">
 
-    <div class="actions">
-      <button onclick="goBackToShopping()">Back to Shopping</button>
-      <button onclick="logout()">Logout</button>
-    </div>
+	  <!-- SIDEBAR -->
+	  <aside class="sidebar">
+	    <h2 class="logo">🚀 SalesPilot</h2>
 
-    <div id="cartList"></div>
-    <h3 id="cartTotal"></h3>
-    <button id="checkoutBtn" onclick="checkout()">Proceed to Buy</button>
-  </div>
+	    <div class="nav-item" onclick="goBackToShopping()">🛍 Start Shop</div>
+	    <div class="nav-item active">🛒 View Cart</div>
+	  </aside>
+
+	  <!-- MAIN -->
+	  <div class="main">
+
+	    <!-- TOPBAR -->
+	    <div class="topbar">
+	      <h1>My Cart</h1>
+
+	      <div class="user-info">
+	        <span id="welcomeText"></span>
+			<button id="themeToggle">🌙</button>
+	        <button class="btn-logout" onclick="logout()">Logout</button>
+	      </div>
+	    </div>
+
+	    <!-- CART ITEMS -->
+	    <div id="cartList" class="product-grid"></div>
+
+	    <!-- TOTAL -->
+	    <div class="cart-footer">
+	      <h2 id="cartTotal"></h2>
+	      <button id="checkoutBtn" onclick="checkout()">Proceed to Buy</button>
+	    </div>
+
+	  </div>
+	</div>
 
   <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-  <script src="/js/customer.js"></script>
+ 
+   <script src="/js/customer.js"></script>
+  <script src="/js/toggle.js"></script>
 </body>
 </html>

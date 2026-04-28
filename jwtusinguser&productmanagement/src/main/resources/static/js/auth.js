@@ -1,3 +1,4 @@
+
 async function registerUser(event) {
   event.preventDefault();
 
@@ -7,27 +8,44 @@ async function registerUser(event) {
     password: document.getElementById("password").value
   };
 
-  const response = await fetch("/auth/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(data)
-  });
+  const messageEl = document.getElementById("message");
 
-  const result = await response.json().catch(() => ({}));
+  try {
+    const response = await fetch("/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(data)
+    });
 
-  document.getElementById("message").innerText =
-    result.message || "Registration completed";
+    // ✅ Always expect JSON from backend
+    const result = await response.json();
 
+    if (!response.ok) {
+      messageEl.innerText = result.message || "Registration failed";
+      return;
+    }
+
+    // ✅ ONLY backend message
+    messageEl.innerText = result.message;
+	/*
   if (response.ok) {
     setTimeout(() => {
       window.location.href = "/login.html";
     }, 1000);
   }
+  */
+  } catch (error) {
+     console.error(error);
+     messageEl.innerText = "Server error";
+   }
+ 
 }
 
 async function loginUser(event, isAdminLogin = false) {
+  console.log("Login triggered");
+
   event.preventDefault();
 
   const data = {
@@ -64,7 +82,7 @@ async function loginUser(event, isAdminLogin = false) {
 document.addEventListener("DOMContentLoaded", () => {
   const signupForm = document.getElementById("signupForm");
   const loginForm = document.getElementById("loginForm");
-  const adminLoginForm = document.getElementById("adminLoginForm");
+  const adminloginForm = document.getElementById("adminLoginForm");
 
   if (signupForm) {
     signupForm.addEventListener("submit", registerUser);
@@ -74,7 +92,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loginForm.addEventListener("submit", (e) => loginUser(e, false));
   }
 
-  if (adminLoginForm) {
-    adminLoginForm.addEventListener("submit", (e) => loginUser(e, true));
+  if (adminloginForm) {
+    adminloginForm.addEventListener("submit", (e) => loginUser(e, true));
   }
 });

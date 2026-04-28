@@ -52,6 +52,7 @@ async function addProduct(event) {
   }, 1000);
 }
 
+
 async function loadAllProducts() {
   const response = await fetch("/admin/products", {
     headers: {
@@ -59,6 +60,7 @@ async function loadAllProducts() {
     }
   });
 
+  // 🔐 AUTH CHECK
   if (response.status === 401 || response.status === 403) {
     window.location.replace("/admin-login.html");
     return;
@@ -67,76 +69,94 @@ async function loadAllProducts() {
   const products = await response.json();
   const productList = document.getElementById("productList");
 
-  if (!products.length) {
-    productList.innerHTML = "<p>No products found</p>";
-    return;
-  }
-
-  let html = `
-    <table border="1" cellpadding="10" cellspacing="0" width="100%">
+  // ❌ EMPTY STATE
+  if (!products || products.length === 0) {
+    productList.innerHTML = `
       <tr>
-        <th>ID</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Stock</th>
-        <th>Category</th>
-        <th>Actions</th>
-      </tr>
-  `;
-
-  products.forEach(product => {
-    html += `
-      <tr>
-        <td>${product.id}</td>
-        <td>${product.name}</td>
-        <td>${product.price}</td>
-        <td>${product.stock}</td>
-        <td>${product.category}</td>
-        <td>
-          <a href="/view-product-admin.html?id=${product.id}">View</a>
-          <a href="/edit-product.html?id=${product.id}">Edit</a>
-          <button onclick="deleteProduct(${product.id})">Delete</button>
+        <td colspan="6" style="text-align:center; padding:20px;">
+          No products found
         </td>
       </tr>
     `;
-  });
-
-  html += "</table>";
-  productList.innerHTML = html;
-}
-
-async function loadProductDetails() {
-  const id = getProductIdFromUrl();
-  if (!id) return;
-
-  const response = await fetch(`/admin/products/${id}`, {
-    headers: {
-      "Authorization": "Bearer " + getToken()
-    }
-  });
-
-  if (response.status === 401 || response.status === 403) {
-    window.location.replace("/admin-login.html");
     return;
   }
 
-  const product = await response.json();
-  const detailsDiv = document.getElementById("productDetails");
+  // ✅ RENDER TABLE ROWS
+  productList.innerHTML = products.map(product => `
+    <tr>
+      <td>${product.id}</td>
+      <td>${product.name}</td>
+      <td>₹${product.price}</td>
+      <td>${product.stock}</td>
+      <td>${product.category}</td>
 
-  detailsDiv.innerHTML = `
-    <p><strong>ID:</strong> ${product.id}</p>
-    <p><strong>Name:</strong> ${product.name}</p>
-    <p><strong>Description:</strong> ${product.description}</p>
-    <p><strong>Price:</strong> ${product.price}</p>
-    <p><strong>Stock:</strong> ${product.stock}</p>
-    <p><strong>Category:</strong> ${product.category}</p>
-    <p><strong>Image:</strong></p>
-    <img class="product-image-preview" src="${product.imageUrl || ""}" alt="${product.name}" />
+      <td>
+        <div style="display:flex; gap:6px;">
+          
+          <a href="/view-product-admin.html?id=${product.id}"
+             style="padding:6px 10px; background:#6b7280; color:#fff; border-radius:6px; text-decoration:none; font-size:12px;">
+            View
+          </a>
+
+          <a href="/edit-product.html?id=${product.id}"
+             style="padding:6px 10px; background:#4f46e5; color:#fff; border-radius:6px; text-decoration:none; font-size:12px;">
+            Edit
+          </a>
+
+          <button onclick="deleteProduct(${product.id})"
+            style="padding:6px 10px; background:#ef4444; color:#fff; border:none; border-radius:6px; font-size:12px; cursor:pointer;">
+            Delete
+          </button>
+
+        </div>
+      </td>
+    </tr>
+  `).join("");
+}
+
+
+
+async function loadProduct() {
+  const id = new URLSearchParams(window.location.search).get("id");
+
+  const res = await fetch(`/admin/products/${id}`, {
+    headers: {
+      "Authorization": "Bearer " + localStorage.getItem("token")
+    }
+  });
+
+  const p = await res.json();
+
+  document.getElementById("productDetails").innerHTML = `
+    <div class="card">
+
+      <img src="${p.imageUrl || 'https://via.placeholder.com/300'}" />
+
+      <div class="info">
+
+        <div class="name">${p.name}</div>
+
+        <div class="badge">ID: ${p.id}</div>
+
+        <div class="desc">${p.description}</div>
+
+        <div class="price">₹${p.price}</div>
+
+        <div class="grid">
+
+          <div class="box"><b>Stock:</b> ${p.stock}</div>
+          <div class="box"><b>Category:</b> ${p.category}</div>
+
+        </div>
+
+      </div>
+
+    </div>
   `;
 }
-/*
-<img src="${product.photoUrl ?? ""}" />
-*/
+
+loadProduct();
+
 
 async function prefillEditForm() {
   const id = getProductIdFromUrl();
@@ -198,25 +218,53 @@ async function updateProduct(event) {
   }, 1000);
 }
 
+
 async function deleteProduct(id) {
   const confirmed = confirm("Are you sure you want to delete this product?");
   if (!confirmed) return;
 
-  const response = await fetch(`/admin/products/${id}`, {
-    method: "DELETE",
-    headers: {
-      "Authorization": "Bearer " + getToken()
+  try {
+    const response = await fetch(`/admin/products/${id}`, {
+      method: "DELETE",
+      headers: {
+        "Authorization": "Bearer " + getToken()
+      }
+    });
+
+    // SAFE RESPONSE HANDLING
+    let message = "";
+
+    try {
+      message = await response.text();
+    } catch (e) {
+      message = "No response body";
     }
-  });
 
-  if (!response.ok) {
-    alert("Failed to delete product");
-    return;
+    console.log("STATUS:", response.status);
+    console.log("RESPONSE:", message);
+
+    // AUTH FAIL
+    if (response.status === 401 || response.status === 403) {
+      alert("Session expired. Please login again.");
+      window.location.href = "/admin-login.html";
+      return;
+    }
+
+    // FAIL CASE
+    if (!response.ok) {
+      alert("Delete failed: " + message);
+      return;
+    }
+ 
+    alert("Product deleted successfully");
+    loadAllProducts();
+
+  } catch (error) {
+    console.error("DELETE ERROR:", error);
+    alert("Backend not reachable or CORS issue");
   }
-
-  alert("Product deleted successfully");
-  loadAllProducts();
 }
+
 
 document.addEventListener("DOMContentLoaded", () => {
   if (!ensureAdminAccess()) return;

@@ -8,21 +8,35 @@ function ensureAdmin() {
     return false;
   }
 
-  document.getElementById("welcomeText").innerText = `Welcome, ${username}`;
+  const welcome = document.getElementById("welcomeText");
+  if (welcome) {
+    welcome.innerText = `Welcome, ${username}`;
+  }
+
   return true;
 }
 
 async function loadAdminData() {
   const token = localStorage.getItem("token");
 
-  const response = await fetch("/admin/home", {
-    headers: {
-      "Authorization": "Bearer " + token
-    }
-  });
+  try {
+    const response = await fetch("/admin/home", {
+      headers: {
+        "Authorization": "Bearer " + token
+      }
+    });
 
-  const text = await response.text();
-  document.getElementById("apiResult").innerText = text;
+    const text = await response.text();
+
+    const resultBox = document.getElementById("apiResult");
+    if (resultBox) {
+      resultBox.innerText = text;
+    }
+
+  } catch (error) {
+    console.error(error);
+    alert("Failed to load admin data");
+  }
 }
 
 function logout() {
@@ -32,4 +46,6 @@ function logout() {
   window.location.href = "/index.html";
 }
 
-document.addEventListener("DOMContentLoaded", ensureAdmin);
+document.addEventListener("DOMContentLoaded", () => {
+  ensureAdmin();
+});

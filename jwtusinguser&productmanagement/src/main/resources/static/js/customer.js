@@ -32,6 +32,7 @@ function goBackToShopping() {
   window.location.href = "/customer-home.html";
 }
 
+
 async function loadProducts() {
   const response = await fetch("/products", {
     headers: {
@@ -44,55 +45,56 @@ async function loadProducts() {
     return;
   }
 
-  if (response.status === 403) {
-    alert("Access denied to products");
-    return;
-  }
-
   const products = await response.json();
+
   const shoppingSection = document.getElementById("shoppingSection");
   const productList = document.getElementById("productList");
 
   shoppingSection.style.display = "block";
 
-  if (!products.length) {
+  // handle both array & object response
+  const productArray = Array.isArray(products) ? products : products.data;
+
+  if (!productArray || productArray.length === 0) {
     productList.innerHTML = "<p>No products found</p>";
     return;
   }
 
-  let html = `
-    <table class="product-table">
-      <tr>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Stock</th>
-        <th>Category</th>
-        <th>Action</th>
-      </tr>
-  `;
+  let html = "";
 
-  products.forEach(product => {
-    html += `
-      <tr>
-        <td>
-          <img src="${product.imageUrl || ''}" alt="${product.name}" class="product-thumb" />
-        </td>
-        <td>${product.name}</td>
-        <td>₹${product.price}</td>
-        <td>${product.stock}</td>
-        <td>${product.category}</td>
-        <td>
-          <button onclick="addToCart(${product.id})">Add to Cart</button>
-        </td>
-      </tr>
-    `;
+  productArray.forEach(product => {
+	html += `
+	  <div class="product-card">
+	    <img src="${product.imageUrl || ''}" alt="${product.name}" />
+
+	    <div class="product-info">
+	      <h3 class="product-title">${product.name}</h3>
+
+		  <p class="description">
+		          ${product.description || "No description available"}
+		   </p>
+		   
+		  <div class="rating">⭐⭐⭐⭐⭐ ${product.rating || 4.3}</div>
+		  
+	      <div class="price-row">
+	        <span class="price">₹${product.price}</span>
+	        <span class="stock">In stock (${product.stock})</span>
+	      </div>
+
+	      <p class="category">${product.category}</p>
+
+	      <button onclick="addToCart(${product.id})">
+	        Add to Cart
+	      </button>
+	    </div>
+	  </div>
+	`;
   });
 
-  html += "</table>";
   productList.innerHTML = html;
 }
-
+  
+  
 async function addToCart(productId) {
   const response = await fetch("/customer/cart", {
     method: "POST",
@@ -133,61 +135,76 @@ async function loadCart() {
     return;
   }
 
-  if (response.status === 403) {
-    alert("Access denied to cart");
-    return;
-  }
-
   const cart = await response.json();
+
   const cartList = document.getElementById("cartList");
   const cartTotal = document.getElementById("cartTotal");
-  const checkoutBtn = document.getElementById("checkoutBtn");
-
-  if (!cartList) return;
 
   if (!cart.items.length) {
-    cartList.innerHTML = "<p class='empty-state'>Your cart is empty</p>";
+    cartList.innerHTML = "<p class='empty-state'>🛒 Your cart is empty</p>";
     cartTotal.innerText = "";
-    if (checkoutBtn) checkoutBtn.style.display = "none";
     return;
   }
 
-  let html = `
-    <table class="product-table">
-      <tr>
-        <th>Image</th>
-        <th>Name</th>
-        <th>Price</th>
-        <th>Quantity</th>
-        <th>Subtotal</th>
-        <th>Actions</th>
-      </tr>
-  `;
+  let html = "";
 
   cart.items.forEach(item => {
     html += `
-      <tr>
-        <td>
-          <img src="${item.imageUrl || ''}" alt="${item.productName}" class="product-thumb" />
-        </td>
-        <td>${item.productName}</td>
-        <td>₹${item.price}</td>
-        <td>
-          <input type="number" min="1" value="${item.quantity}" id="qty-${item.cartItemId}" style="width: 70px;" />
-        </td>
-        <td>₹${item.subtotal}</td>
-        <td>
-          <button onclick="updateCartItem(${item.cartItemId})">Update</button>
-          <button onclick="removeCartItem(${item.cartItemId})">Remove</button>
-        </td>
-      </tr>
+      <div class="product-card">
+
+        <img src="${item.imageUrl || 'https://via.placeholder.com/200'}" />
+
+        <div class="product-info">
+
+          <h3 class="product-title">${item.productName}</h3>
+
+          <div class="rating">⭐⭐⭐⭐ 4.2</div>
+
+		  <div class="price-row">
+		    <span class="price">₹${item.price}</span>
+
+		    <div class="qty-box">
+		      <button onclick="decreaseQty(${item.cartItemId})">−</button>
+
+		      <input type="number" id="qty-${item.cartItemId}" value="${item.quantity}" min="1"/>
+
+		      <button onclick="increaseQty(${item.cartItemId})">+</button>
+		    </div>
+		  </div>
+
+          <p class="category">Subtotal: ₹${item.subtotal}</p>
+
+		  <div class="cart-actions">
+		    <button class="update-btn" onclick="updateCartItem(${item.cartItemId})">
+		      Update
+		    </button>
+
+		    <button class="remove-btn" onclick="removeCartItem(${item.cartItemId})">
+		      Remove
+		    </button>
+		  </div>
+
+        </div>
+      </div>
     `;
   });
 
-  html += "</table>";
-
   cartList.innerHTML = html;
   cartTotal.innerText = `Total: ₹${cart.totalAmount}`;
+}
+
+function increaseQty(cartItemId) {
+  const input = document.getElementById(`qty-${cartItemId}`);
+  input.value = Number(input.value) + 1;
+}
+
+function decreaseQty(cartItemId) {
+  const input = document.getElementById(`qty-${cartItemId}`);
+  const current = Number(input.value);
+
+  if (current > 1) {
+    input.value = current - 1;
+  }
 }
 
 async function updateCartItem(cartItemId) {
@@ -211,7 +228,7 @@ async function updateCartItem(cartItemId) {
     return;
   }
 
-  alert(result.message || "Cart updated");
+ /* alert(result.message || "Cart updated")*/;
   loadCart();
 }
 
@@ -230,7 +247,7 @@ async function removeCartItem(cartItemId) {
     return;
   }
 
-  alert(result.message || "Item removed from cart");
+  /* alert(result.message || "Item removed from cart"); */
   loadCart();
 }
 
