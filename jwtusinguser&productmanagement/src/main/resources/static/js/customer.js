@@ -24,14 +24,21 @@ function startShopping() {
   loadProducts();
 }
 
-function goToCart() {
-  window.location.href = "/view-cart.html";
-}
-
 function goBackToShopping() {
   window.location.href = "/customer-home.html";
 }
 
+function goToCart() {
+    window.location.href = "/view-cart.html";
+}
+
+function goToOrders() {
+    window.location.href = "/orders.html";
+}
+
+function goToTransactions() {
+    window.location.href = "/transactions.html";
+}
 
 async function loadProducts() {
   const response = await fetch("/products", {
@@ -283,7 +290,7 @@ async function checkout() {
     key: orderData.keyId,
     amount: orderData.amount,
     currency: orderData.currency,
-    name: "JWT Demo Store",
+    name: "Payments",
     description: "Cart Payment",
     order_id: orderData.razorpayOrderId,
     handler: async function (response) {
@@ -309,7 +316,7 @@ async function checkout() {
       }
 
       alert(verifyResult.message || "Payment successful");
-      window.location.href = "/customer-home.html";
+      window.location.href = "/orders.html";
     },
     prefill: {
       name: username

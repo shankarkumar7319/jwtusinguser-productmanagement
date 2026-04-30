@@ -10,11 +10,14 @@ public class PaymentTransaction {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "order_id", unique = true)
+    @ManyToOne
+    private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "order_id")
     private PurchaseOrder order;
 
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
     private String razorpayPaymentId;
 
     private String razorpayOrderId;
@@ -25,8 +28,7 @@ public class PaymentTransaction {
     @Column(nullable = false)
     private String status;
 
-    public PaymentTransaction() {
-    }
+    public PaymentTransaction() {}
 
     public PaymentTransaction(PurchaseOrder order, String razorpayPaymentId,
                               String razorpayOrderId, String razorpaySignature, String status) {
@@ -38,46 +40,38 @@ public class PaymentTransaction {
     }
 
     public Long getId() {
-        return id;
+    	return id; 
     }
 
-    public PurchaseOrder getOrder() {
-        return order;
+    public User getUser() { 
+    	return user;
     }
 
-    public String getRazorpayPaymentId() {
-        return razorpayPaymentId;
-    }
+    public void setUser(User user) { this.user = user; }
 
-    public String getRazorpayOrderId() {
-        return razorpayOrderId;
-    }
+    public PurchaseOrder getOrder() { return order; }
 
-    public String getRazorpaySignature() {
-        return razorpaySignature;
-    }
+    public void setOrder(PurchaseOrder order) { this.order = order; }
 
-    public String getStatus() {
-        return status;
-    }
-
-    public void setOrder(PurchaseOrder order) {
-        this.order = order;
-    }
+    public String getRazorpayPaymentId() { return razorpayPaymentId; }
 
     public void setRazorpayPaymentId(String razorpayPaymentId) {
         this.razorpayPaymentId = razorpayPaymentId;
     }
 
+    public String getRazorpayOrderId() { return razorpayOrderId; }
+
     public void setRazorpayOrderId(String razorpayOrderId) {
         this.razorpayOrderId = razorpayOrderId;
     }
+
+    public String getRazorpaySignature() { return razorpaySignature; }
 
     public void setRazorpaySignature(String razorpaySignature) {
         this.razorpaySignature = razorpaySignature;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
+    public String getStatus() { return status; }
+
+    public void setStatus(String status) { this.status = status; }
 }

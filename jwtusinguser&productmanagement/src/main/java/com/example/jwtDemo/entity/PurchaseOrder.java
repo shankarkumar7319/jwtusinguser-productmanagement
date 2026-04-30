@@ -1,6 +1,9 @@
 package com.example.jwtDemo.entity;
 
 import java.math.BigDecimal;
+import java.util.List;
+
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import jakarta.persistence.*;
 
@@ -12,10 +15,12 @@ public class PurchaseOrder {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /* USER */
     @ManyToOne(optional = false)
     @JoinColumn(name = "user_id")
     private User user;
 
+    /* ORDER INFO */
     @Column(nullable = false, precision = 12, scale = 2)
     private BigDecimal totalAmount;
 
@@ -28,8 +33,11 @@ public class PurchaseOrder {
     @Column(unique = true)
     private String razorpayOrderId;
 
-    public PurchaseOrder() {
-    }
+    @OneToMany(mappedBy = "order")
+    @JsonManagedReference
+    private List<OrderItem> items;
+
+    public PurchaseOrder() {}
 
     public PurchaseOrder(User user, BigDecimal totalAmount, String currency, String status) {
         this.user = user;
@@ -37,6 +45,8 @@ public class PurchaseOrder {
         this.currency = currency;
         this.status = status;
     }
+
+    /* GETTERS */
 
     public Long getId() {
         return id;
@@ -61,6 +71,12 @@ public class PurchaseOrder {
     public String getRazorpayOrderId() {
         return razorpayOrderId;
     }
+
+    public List<OrderItem> getItems() {   
+        return items;
+    }
+
+    /* SETTERS */
 
     public void setUser(User user) {
         this.user = user;

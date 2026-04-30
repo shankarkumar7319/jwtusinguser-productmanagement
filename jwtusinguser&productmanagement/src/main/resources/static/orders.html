@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+  <title>Orders</title>
+  <link rel="stylesheet" href="/css/orders.css">
+</head>
+
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <h2>📦 My Orders</h2>
+
+    <div class="actions">
+      <!-- Toggle Switch -->
+      <label class="switch">
+		<button id="themeToggle">🌙</button>
+        <span class="slider"></span>
+      </label>
+
+      <button onclick="goBack()" class="back-btn">Back</button>
+    </div>
+  </div>
+
+  <div id="ordersContainer" class="orders"></div>
+
+</div>
+
+<script src="/js/orders.js"></script>
+<script src="/js/toggle.js"></script>
+
+</body>
+</html>

@@ -45,6 +45,9 @@ public class SecurityConfig {
                     "/admin-home.html",
                     "/add-product.html", "/all-products-admin.html",
                     "/edit-product.html", "/view-product-admin.html",
+                    "/orders.html",
+                    "/order-details.html",
+                    "/transactions.html",
                     "/css/**", "/js/**",
                     "/auth/**", "/hello"
                 ).permitAll()
@@ -53,7 +56,7 @@ public class SecurityConfig {
                 .requestMatchers("/customer/payment/**").hasRole("USER")
                 .requestMatchers("/products/**").hasAnyRole("USER", "ADMIN")
                 .requestMatchers("/admin/**").hasRole("ADMIN")
-                .requestMatchers("/customer/**").hasAnyRole("USER", "ADMIN")
+                .requestMatchers("/customer/**").authenticated()
 
                 .anyRequest().authenticated()
             )

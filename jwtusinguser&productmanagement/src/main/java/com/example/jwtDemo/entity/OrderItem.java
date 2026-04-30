@@ -2,6 +2,8 @@ package com.example.jwtDemo.entity;
 
 import java.math.BigDecimal;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import jakarta.persistence.*;
 
 @Entity
@@ -14,6 +16,7 @@ public class OrderItem {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "order_id")
+    @JsonBackReference
     private PurchaseOrder order;
 
     @ManyToOne(optional = false)

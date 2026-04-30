@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8">
+  <title>Order Details</title>
+  <link rel="stylesheet" href="/css/order-details.css">
+</head>
+<body>
+
+<div class="page">
+
+  <div class="header">
+    <h2>Order Details</h2>
+    <button onclick="goBack()">Back</button>
+  </div>
+
+  <div class="summary">
+    <p><b>Order ID:</b> <span id="orderId"></span></p>
+    <p><b>Status:</b> <span id="orderStatus"></span></p>
+    <p><b>Total:</b> <span id="orderTotal"></span></p>
+  </div>
+
+  <div id="itemsContainer" class="items"></div>
+
+</div>
+
+<script src="/js/order-details.js"></script>
+</body>
+</html>

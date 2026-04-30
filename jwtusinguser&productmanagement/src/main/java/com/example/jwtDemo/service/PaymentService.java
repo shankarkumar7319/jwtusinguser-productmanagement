@@ -50,8 +50,12 @@ public class PaymentService {
         this.razorpayService = razorpayService;
     }
 
+    // =========================
+    // CREATE PAYMENT ORDER
+    // =========================
     @Transactional
     public CreatePaymentOrderResponse createPaymentOrder() {
+
         User user = getCurrentUser();
         List<CartItem> cartItems = cartItemRepository.findByUser(user);
 
@@ -74,7 +78,14 @@ public class PaymentService {
             totalAmount = totalAmount.add(subtotal);
         }
 
-        PurchaseOrder order = new PurchaseOrder(user, totalAmount, razorpayService.getCurrency(), "CREATED");
+        // ✅ Clean status
+        PurchaseOrder order = new PurchaseOrder(
+                user,
+                totalAmount,
+                razorpayService.getCurrency(),
+                "PENDING_PAYMENT"
+        );
+
         purchaseOrderRepository.save(order);
 
         long amountInPaise = toPaise(totalAmount);
@@ -84,7 +95,6 @@ public class PaymentService {
                 razorpayService.createOrder(amountInPaise, receipt);
 
         order.setRazorpayOrderId(razorpayOrder.id());
-        order.setStatus("PENDING_PAYMENT");
         purchaseOrderRepository.save(order);
 
         return new CreatePaymentOrderResponse(
@@ -96,84 +106,134 @@ public class PaymentService {
         );
     }
 
+    // =========================
+    // VERIFY PAYMENT
+    // =========================
     @Transactional
     public String verifyPayment(VerifyPaymentRequest request) {
+
         User user = getCurrentUser();
 
-        PurchaseOrder order = purchaseOrderRepository.findByIdAndUser(request.localOrderId(), user)
+        PurchaseOrder order = purchaseOrderRepository
+                .findByIdAndUser(request.localOrderId(), user)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
+        if (request.razorpayPaymentId() == null) {
+            throw new RuntimeException("Payment ID is NULL ❌");
+        }
+        
+        // ✅ Prevent duplicate payment
+        if (paymentTransactionRepository.existsByRazorpayPaymentId(request.razorpayPaymentId())) {
+            return "Payment already processed";
+        }
+
         if ("PAID".equals(order.getStatus())) {
-            return "Payment already verified and order already placed";
+            return "Order already paid";
         }
 
         if (!order.getRazorpayOrderId().equals(request.razorpayOrderId())) {
-            throw new RuntimeException("Razorpay order id does not match");
+            throw new RuntimeException("Razorpay order id mismatch");
         }
 
-        boolean validSignature = razorpayService.verifySignature(
-                order.getRazorpayOrderId(),
-                request.razorpayPaymentId(),
-                request.razorpaySignature()
-        );
+        try {
+            boolean validSignature = razorpayService.verifySignature(
+                    order.getRazorpayOrderId(),
+                    request.razorpayPaymentId(),
+                    request.razorpaySignature()
+            );
 
-        if (!validSignature) {
-            paymentTransactionRepository.save(new PaymentTransaction(
+            if (!validSignature) {
+
+                PaymentTransaction failedTxn = new PaymentTransaction(
+                        order,
+                        request.razorpayPaymentId(),
+                        request.razorpayOrderId(),
+                        request.razorpaySignature(),
+                        "FAILED"
+                );
+
+                failedTxn.setUser(user);   // ✅ IMPORTANT
+
+                paymentTransactionRepository.save(failedTxn);
+
+                throw new RuntimeException("Invalid payment signature");
+            }
+
+            List<CartItem> cartItems = cartItemRepository.findByUser(user);
+
+            if (cartItems.isEmpty()) {
+                throw new RuntimeException("Cart is empty");
+            }
+
+            for (CartItem cartItem : cartItems) {
+
+                Product product = cartItem.getProduct();
+
+                if (cartItem.getQuantity() > product.getStock()) {
+                    throw new RuntimeException("Insufficient stock for product: " + product.getName());
+                }
+
+                // ✅ Save order item
+                OrderItem orderItem = new OrderItem(
+                        order,
+                        product,
+                        cartItem.getQuantity(),
+                        product.getPrice()
+                );
+
+                orderItemRepository.save(orderItem);
+
+                // ✅ Update stock
+                product.setStock(product.getStock() - cartItem.getQuantity());
+                productRepository.save(product);
+            }
+
+            // ✅ Save success transaction
+            PaymentTransaction txn = new PaymentTransaction(
                     order,
                     request.razorpayPaymentId(),
                     request.razorpayOrderId(),
                     request.razorpaySignature(),
-                    "FAILED"
-            ));
-            throw new RuntimeException("Invalid payment signature");
-        }
-
-        List<CartItem> cartItems = cartItemRepository.findByUser(user);
-
-        if (cartItems.isEmpty()) {
-            throw new RuntimeException("Cart is empty");
-        }
-
-        for (CartItem cartItem : cartItems) {
-            Product product = cartItem.getProduct();
-
-            if (cartItem.getQuantity() > product.getStock()) {
-                throw new RuntimeException("Insufficient stock for product: " + product.getName());
-            }
-
-            OrderItem orderItem = new OrderItem(
-                    order,
-                    product,
-                    cartItem.getQuantity(),
-                    product.getPrice()
+                    "SUCCESS"
             );
-            orderItemRepository.save(orderItem);
 
-            product.setStock(product.getStock() - cartItem.getQuantity());
-            productRepository.save(product);
+            // 🔥 ADD THIS
+            txn.setUser(user);
+
+         // 🔥 DEBUG (must add)
+            System.out.println("PAYMENT ID FROM REQUEST: " + request.razorpayPaymentId());
+
+            paymentTransactionRepository.save(txn);
+
+            // ✅ Update order
+            order.setStatus("PAID");
+            purchaseOrderRepository.save(order);
+
+            // ✅ Clear cart
+            cartItemRepository.deleteByUser(user);
+
+            return "Payment successful and order placed";
+
+        } catch (Exception e) {
+
+            // ✅ Fail-safe
+            order.setStatus("FAILED");
+            purchaseOrderRepository.save(order);
+
+            throw e;
         }
-
-        paymentTransactionRepository.save(new PaymentTransaction(
-                order,
-                request.razorpayPaymentId(),
-                request.razorpayOrderId(),
-                request.razorpaySignature(),
-                "SUCCESS"
-        ));
-
-        order.setStatus("PAID");
-        purchaseOrderRepository.save(order);
-
-        cartItemRepository.deleteByUser(user);
-
-        return "Payment verified and order placed successfully";
     }
 
+    // =========================
+    // HELPER METHODS
+    // =========================
     private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        String username = SecurityContextHolder.getContext()
+                .getAuthentication()
+                .getName();
 
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new RuntimeException("Logged in user not found"));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     private long toPaise(BigDecimal amount) {
