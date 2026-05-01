@@ -46,26 +46,54 @@ async function loadTransactions() {
       return;
     }
 
-    // ✅ Populate table
-    transactions.forEach(txn => {
+	transactions.forEach(txn => {
 
-      const row = document.createElement("tr");
+	  const row = document.createElement("tr");
 
-      const statusClass =
-        txn.status === "SUCCESS" ? "success" : "failed";
+	  // ✅ Safe status handling
+	  const status = (txn.status || "UNKNOWN").toUpperCase();
 
-      row.innerHTML = `
-        <td>${txn.paymentId || "-"}</td>
-        <td>${txn.orderId || txn.order?.id || "-"}</td>
-        <td class="${statusClass}">${txn.status}</td>
-      `;
+	  let statusClass = "";
+	  if (status === "SUCCESS") {
+	    statusClass = "success";
+	  } else if (status === "FAILED") {
+	    statusClass = "failed";
+	  } else {
+	    statusClass = "pending";
+	  }
 
-      table.appendChild(row);
-    });
+	  row.innerHTML = `
+	    <td>${txn.paymentId ?? "-"}</td>
+	    <td>${txn.orderId ?? txn.order?.id ?? "-"}</td>
+	    <td class="${statusClass}">${status}</td>
+	  `;
+
+	  table.appendChild(row);
+	});
 
   } catch (err) {
     console.error("ERROR:", err);
   }
+}
+
+function goBack() {
+  window.location.href = "/customer-home.html";
+} 
+
+function goBackToShopping() {
+  window.location.href = "/customer-home.html";
+}
+
+function goToCart() {
+    window.location.href = "/view-cart.html";
+}
+
+function goToOrders() {
+    window.location.href = "/orders.html";
+}
+
+function goToTransactions() {
+    window.location.href = "/transactions.html";
 }
 
 // ✅ Call function

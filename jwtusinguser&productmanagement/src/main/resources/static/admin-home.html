@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Admin Dashboard</title>
   <link rel="stylesheet" href="/css/style2.css" />
+  <link rel="stylesheet" href="/css/dashboard.css" />
 </head>
 <body>
 
@@ -36,17 +37,48 @@
       </div>
     </div>
 
-    <!-- CONTENT -->
-    <div class="content">
+	<div class="content">
 
-      <button class="primary-btn" onclick="loadAdminData()">
-        Load Admin API Test
-      </button>
+	  <!-- CARDS -->
+	  <div class="cards">
 
-      <p id="apiResult"></p>
+	    <div class="card blue">
+	      <p>Total Orders</p>
+	      <h2 id="orders">0</h2>
+	    </div>
 
-    </div>
+	    <div class="card green">
+	      <p>Total Revenue</p>
+	      <h2>₹<span id="revenue">0</span></h2>
+	    </div>
 
+	    <div class="card purple">
+	      <p>Users</p>
+	      <h2 id="users">0</h2>
+	    </div>
+
+	  </div>
+
+	  <!-- RECENT ORDERS -->
+	  <div class="table-box">
+	    <h3>Recent Orders</h3>
+
+	    <table>
+	      <thead>
+	        <tr>
+	          <th>Order ID</th>
+	          <th>All Users</th>
+	          <th>Total</th>
+	          <th>Status</th>
+	        </tr>
+	      </thead>
+
+	      <tbody id="orderTable"></tbody>
+	    </table>
+	  </div>
+
+	</div>
+	
   </div>
 </div>
 

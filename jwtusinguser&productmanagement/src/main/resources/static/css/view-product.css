@@ -188,3 +188,183 @@ body {
     grid-template-columns: 1fr;
   }
 }
+/* ============================= */
+/* 📱 MOBILE (≤ 768px) */
+/* ============================= */
+@media (max-width: 768px) {
+
+  /* LAYOUT */
+  .app {
+    flex-direction: column;
+  }
+
+  /* SIDEBAR → TOP NAV */
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    display: flex;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px;
+  }
+
+  .logo {
+    display: none; /* hide logo for space */
+  }
+
+  .nav-item {
+    flex: 0 0 auto;
+    white-space: nowrap;
+    font-size: 13px;
+    padding: 8px 12px;
+  }
+
+  /* MAIN */
+  .main {
+    padding: 15px;
+  }
+
+  /* TOPBAR */
+  .topbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .topbar h1 {
+    font-size: 20px;
+  }
+
+  .user-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* HERO */
+  .hero {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .hero h2 {
+    font-size: 18px;
+  }
+
+  .hero p {
+    font-size: 13px;
+  }
+
+  /* PRODUCT GRID */
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  /* PRODUCT CARD */
+  .product-card {
+    padding: 10px;
+  }
+
+  .product-card img {
+    height: 120px;
+  }
+
+  .product-title {
+    font-size: 13px;
+  }
+
+  .description {
+    font-size: 11px;
+  }
+
+  .price {
+    font-size: 14px;
+  }
+
+  /* CART FOOTER */
+  .cart-footer {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+
+  .cart-footer h2 {
+    font-size: 16px;
+  }
+
+  .cart-footer button {
+    width: 100%;
+  }
+
+  /* TABLE (TRANSACTIONS PAGE) */
+  table {
+    font-size: 12px;
+  }
+
+  th, td {
+    padding: 10px;
+  }
+
+}
+
+
+/* ============================= */
+/* 📲 SMALL MOBILE (≤ 480px) */
+/* ============================= */
+@media (max-width: 480px) {
+
+  .product-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding: 18px;
+  }
+
+  .hero h2 {
+    font-size: 16px;
+  }
+
+  .hero p {
+    font-size: 12px;
+  }
+
+  button {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+}
+
+
+/* ============================= */
+/* 💻 TABLET (769px – 1024px) */
+/* ============================= */
+@media (min-width: 769px) and (max-width: 1024px) {
+
+  .sidebar {
+    width: 200px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+
+}
+
+
+/* ============================= */
+/* 🖥 LARGE SCREEN (≥ 1400px) */
+/* ============================= */
+@media (min-width: 1400px) {
+
+  .main {
+    padding: 40px;
+  }
+
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  }
+
+}

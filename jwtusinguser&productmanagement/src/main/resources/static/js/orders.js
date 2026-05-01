@@ -91,6 +91,21 @@ function goBack() {
   window.location.href = "/customer-home.html";
 } 
 
+function goBackToShopping() {
+  window.location.href = "/customer-home.html";
+}
+
+function goToCart() {
+    window.location.href = "/view-cart.html";
+}
+
+function goToOrders() {
+    window.location.href = "/orders.html";
+}
+
+function goToTransactions() {
+    window.location.href = "/transactions.html";
+}
 function viewOrder(orderId) {
   console.log("Clicked Order:", orderId); // debug
   window.location.href = "/order-details.html?id=" + orderId;

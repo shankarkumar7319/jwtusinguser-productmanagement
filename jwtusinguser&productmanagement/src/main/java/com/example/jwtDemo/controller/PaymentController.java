@@ -50,12 +50,14 @@ public class PaymentController {
         return ResponseEntity.ok(Map.of("message", message));
     }
 
+
     // ✅ ORDER DETAILS
     @GetMapping("/orders/{id}")
     public OrderDetailsResponse getOrderDetails(@PathVariable Long id) {
 
         String username = SecurityContextHolder.getContext().getAuthentication().getName();
-
+        System.out.println(SecurityContextHolder.getContext().getAuthentication());
+        
         PurchaseOrder order = purchaseOrderRepository
                 .findByIdAndUserUsername(id, username)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -78,6 +80,7 @@ public class PaymentController {
         );
     }
 
+    
     // ✅ ALL ORDERS
     @GetMapping("/orders")
     public List<PurchaseOrder> getOrders() {

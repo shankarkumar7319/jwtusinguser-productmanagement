@@ -123,11 +123,11 @@ async function addToCart(productId) {
   }
 
   if (!response.ok) {
-    alert(result.message || "Failed to add product to cart");
+    alert(result.message)  /*|| "Failed to add product to cart"); */
     return;
   }
 
-  alert(result.message || "Product added to cart");
+  alert(result.message) /* || "Product added to cart"); */
 }
 
 async function loadCart() {
@@ -334,7 +334,9 @@ async function checkout() {
 
   rzp.open();
 }
-
+function goBack() {
+	window.location.href = "/customer-home.html";
+}
 
 function logout() {
   localStorage.removeItem("token");

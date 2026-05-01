@@ -16,26 +16,59 @@ function ensureAdmin() {
   return true;
 }
 
+
 async function loadAdminData() {
-  const token = localStorage.getItem("token");
 
   try {
-    const response = await fetch("/admin/home", {
+    const res = await fetch("/admin/dashboard", {
       headers: {
-        "Authorization": "Bearer " + token
+        "Authorization": "Bearer " + localStorage.getItem("token")
       }
     });
 
-    const text = await response.text();
+    console.log("Status:", res.status);
 
-    const resultBox = document.getElementById("apiResult");
-    if (resultBox) {
-      resultBox.innerText = text;
+    if (!res.ok) {
+      console.log("API failed");
+      return;
     }
 
-  } catch (error) {
-    console.error(error);
-    alert("Failed to load admin data");
+    const data = await res.json();
+    console.log("DATA:", data);
+
+    // ✅ Cards
+    document.getElementById("orders").innerText = data.totalOrders || 0;
+    document.getElementById("revenue").innerText = data.totalRevenue || 0;
+    document.getElementById("users").innerText = data.totalUsers || 0;
+
+    // ✅ Table
+    const table = document.getElementById("orderTable");
+    table.innerHTML = "";
+
+    if (!data.recentOrders || data.recentOrders.length === 0) {
+      table.innerHTML = "<tr><td colspan='4'>No Orders Found</td></tr>";
+      return;
+    }
+
+    data.recentOrders.forEach(order => {
+
+      const row = document.createElement("tr");
+
+      const statusClass =
+        order.status === "PAID" ? "paid" : "pending";
+
+      row.innerHTML = `
+        <td>#${order.id}</td>
+        <td>${order.username}</td>
+        <td>₹${order.total}</td>
+        <td><span class="status ${statusClass}">${order.status}</span></td>
+      `;
+
+      table.appendChild(row);
+    });
+
+  } catch (err) {
+    console.error("ERROR:", err);
   }
 }
 
@@ -47,5 +80,8 @@ function logout() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-  ensureAdmin();
+  loadAdminData();
+
+  document.getElementById("welcomeText").innerText =
+    "Welcome, " + (localStorage.getItem("username") || "Admin");
 });

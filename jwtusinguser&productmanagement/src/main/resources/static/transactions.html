@@ -1,34 +1,59 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
+
 <head>
-	<meta charset="UTF-8">
-  <title>Transactions</title>
-  <link rel="stylesheet" href="/css/transactions.css">
+	<meta charset="UTF-8" />
+	<title>Transactions</title>
+	<link rel="stylesheet" href="css/style2.css" />
+	<link rel="stylesheet" href="/css/transactions.css" />
+	
 </head>
+
 <body>
 
-<div class="page">
+	<div class="app">
 
-  <div class="header">
-    <h2>Transactions</h2>
-    <button onclick="goBack()">Back</button>
-  </div>
+		<!-- SIDEBAR -->
+		<aside class="sidebar">
+			<h2 class="logo">🚀 SalesPilot</h2>
 
-  <div class="card">
-    <table>
-      <thead>
-        <tr>
-          <th>Payment ID</th>
-          <th>Order ID</th>
-          <th>Status</th>
-        </tr>
-      </thead>
-      <tbody id="txnTable"></tbody>
-    </table>
-  </div>
+			<div class="nav-item" onclick="startShopping()">🛍 Start Shop</div>
+			<div class="nav-item" onclick="goToCart()">🛒 View Cart</div>
+			<div class="nav-item" onclick="goToOrders()">📦 Orders</div>
+			<div class="nav-item active" onclick="goToTransactions()">💳 Transactions</div>
+		</aside>
 
-</div>
-<script src="/js/transactions.js"></script>
+		<!-- MAIN -->
+		<div class="main">
+
+			<!-- TOPBAR -->
+			<div class="topbar">
+				<h1>Transactions</h1>
+
+				<div class="user-info">
+					<button id="themeToggle">🌙</button>
+					<button class="btn-logout" onclick="goBack()">Back</button>
+				</div>
+			</div>
+
+			<div class="card">
+				<table>
+					<thead>
+						<tr>
+							<th>Payment ID</th>
+							<th>Order ID</th>
+							<th>Status</th>
+						</tr>
+					</thead>
+					<tbody id="txnTable"></tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<script src="/js/transactions.js"></script>
+	<script src="/js/toggle.js"></script>
 
 </body>
+
 </html>
