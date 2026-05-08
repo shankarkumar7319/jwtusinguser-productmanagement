@@ -275,43 +275,106 @@ body.dark-mode .order-footer button {
   background: var(--primary);
 }
 
-/* ORDERS RESPONSIVE FIX */
+/* ===== MOBILE (<= 768px) ===== */
 @media (max-width: 768px) {
 
-  .orders {
-    display: flex;
+  /* APP LAYOUT */
+  .app {
     flex-direction: column;
-    gap: 15px;
   }
 
-  .order-card {
+  /* SIDEBAR → TOP NAV */
+  .sidebar {
+    width: 100%;
+    min-height: auto;
+    display: flex;
+    flex-direction: row;
+	align-items: center;
+    overflow-x: auto;
+    gap: 10px;
+    padding: 10px;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .logo {
+    display: none; /* hide logo to save space */
+  }
+
+  .nav-item {
+	height: auto;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+    flex: 0 0 auto;
+    white-space: nowrap;
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  
+  .nav-item.active {
+	height: auto;
+  }
+
+  /* MAIN */
+  .main {
     padding: 15px;
   }
 
-  .order-header {
+  /* TOPBAR */
+  .topbar {
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
-  }
-
-  .item-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .item-row img {
-    width: 100%;
-    height: 140px;
-  }
-
-  .order-footer {
-    flex-direction: column;
     gap: 10px;
-    align-items: flex-start;
   }
 
-  .order-footer button {
+  .topbar h1 {
+    font-size: 20px;
+  }
+
+  .user-info {
     width: 100%;
+    justify-content: space-between;
+  }
+
+  .user-info button {
+    flex: 1;
+  }
+
+}
+
+
+/* ===== SMALL MOBILE (<= 480px) ===== */
+@media (max-width: 480px) {
+
+  .main {
+    padding: 10px;
+  }
+
+  .topbar h1 {
+    font-size: 18px;
+  }
+
+  .nav-item {
+    font-size: 13px;
+    padding: 8px 10px;
+  }
+
+  button {
+    padding: 8px 10px;
+    font-size: 13px;
+  }
+
+  .order-card {
+    padding: 12px;
+  }
+
+  .item-details h4 {
+    font-size: 14px;
+  }
+
+  .item-details p {
+    font-size: 12px;
   }
 
 }

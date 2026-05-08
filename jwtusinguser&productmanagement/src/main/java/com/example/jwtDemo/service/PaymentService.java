@@ -119,8 +119,26 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         if (request.razorpayPaymentId() == null) {
-            throw new RuntimeException("Payment ID is NULL ❌");
+
+            // ✅ SAVE FAILED TRANSACTION
+            PaymentTransaction failedTxn = new PaymentTransaction(
+                    order,
+                    "FAILED_" + System.currentTimeMillis(),
+                    request.razorpayOrderId(),
+                    null,
+                    "FAILED"
+            );
+
+            failedTxn.setUser(user);
+            paymentTransactionRepository.save(failedTxn);
+
+            // ✅ UPDATE ORDER
+            order.setStatus("FAILED");
+            purchaseOrderRepository.save(order);
+
+            return "Payment failed";
         }
+        
         
         // ✅ Prevent duplicate payment
         if (paymentTransactionRepository.existsByRazorpayPaymentId(request.razorpayPaymentId())) {
@@ -214,14 +232,29 @@ public class PaymentService {
 
             return "Payment successful and order placed";
 
-        } catch (Exception e) {
+        } 
+        
+        catch (Exception e) {
 
-            // ✅ Fail-safe
+            // ✅ Update order
             order.setStatus("FAILED");
             purchaseOrderRepository.save(order);
 
+            // ✅ SAVE FAILED TRANSACTION (MISSING PART)
+            PaymentTransaction failedTxn = new PaymentTransaction(
+                    order,
+                    request.razorpayPaymentId() != null ? request.razorpayPaymentId() : "FAILED_" + System.currentTimeMillis(),
+                    request.razorpayOrderId(),
+                    request.razorpaySignature(),
+                    "FAILED"
+            );
+
+            failedTxn.setUser(user);
+
+            paymentTransactionRepository.save(failedTxn);
+
             throw e;
-        }
+        } 
     }
 
     // =========================

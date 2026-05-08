@@ -63,19 +63,17 @@ body {
 
 /*========================= */
 .back-btn {
-  padding: 10px 14px;   /* BIG BUTTON */
+  background: var(--primary);
+  color: white;
+  padding: 10px 14px;
+  border-radius: 8px;
   border: none;
-  border-radius: 6px;
-  font-size: 14px;
   cursor: pointer;
-  margin-right: 6px;
-  transition: 0.2s;
-}
-.back-btn:hover {
-  transform: scale(1.05);
-  opacity: 0.9;
 }
 
+.back-btn:hover {
+  opacity: 0.9;
+}
 /* =========================
    THEME TOGGLE
 ========================= */
@@ -83,7 +81,7 @@ body {
   border: none;
   background: var(--primary);
   color: white;
-  padding: 8px 12px;
+  padding: 10px 12px;
   border-radius: 8px;
   cursor: pointer;
 }

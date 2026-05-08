@@ -91,6 +91,10 @@ function goBack() {
   window.location.href = "/customer-home.html";
 } 
 
+function startShopping() {
+  window.location.href = "/customer-home.html";
+}
+
 function goBackToShopping() {
   window.location.href = "/customer-home.html";
 }

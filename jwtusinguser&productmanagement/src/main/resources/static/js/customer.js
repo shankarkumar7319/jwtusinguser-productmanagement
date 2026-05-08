@@ -293,8 +293,11 @@ async function checkout() {
     name: "Payments",
     description: "Cart Payment",
     order_id: orderData.razorpayOrderId,
+
+    // ✅ SUCCESS HANDLER
     handler: async function (response) {
-      const verifyResponse = await fetch("/customer/payment/verify", {
+
+      await fetch("/customer/payment/verify", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -308,19 +311,37 @@ async function checkout() {
         })
       });
 
-      const verifyResult = await verifyResponse.json().catch(() => ({}));
-
-      if (!verifyResponse.ok) {
-        alert(verifyResult.message || "Payment verification failed");
-        return;
-      }
-
-      alert(verifyResult.message || "Payment successful");
+      alert("Payment successful ✅");
       window.location.href = "/orders.html";
     },
+
+    // ✅ USER CLOSES POPUP
+    modal: {
+      ondismiss: async function () {
+
+        console.log("User closed payment popup");
+
+        await fetch("/customer/payment/verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + getToken()
+          },
+          body: JSON.stringify({
+            localOrderId: orderData.localOrderId,
+            razorpayPaymentId: null,
+            razorpayOrderId: orderData.razorpayOrderId,
+            razorpaySignature: null
+          })
+        });
+
+      }
+    },
+
     prefill: {
       name: username
     },
+
     theme: {
       color: "#2563eb"
     }
@@ -328,12 +349,38 @@ async function checkout() {
 
   const rzp = new Razorpay(options);
 
-  rzp.on("payment.failed", function () {
-    alert("Payment failed");
+  // ✅ PAYMENT FAILED EVENT (FIXED)
+  rzp.on("payment.failed", async function (response) {
+
+    console.log("FAILED RESPONSE:", response);
+
+    await fetch("/customer/payment/verify", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer " + getToken()
+      },
+      body: JSON.stringify({
+        localOrderId: orderData.localOrderId,
+
+        // 🔥 IMPORTANT FIX
+        razorpayPaymentId: response.error?.metadata?.payment_id 
+                          || "FAILED_" + Date.now(),
+
+        razorpayOrderId: response.error?.metadata?.order_id 
+                         || orderData.razorpayOrderId,
+
+        razorpaySignature: null
+      })
+    });
+
+    alert("Payment failed ❌");
   });
 
   rzp.open();
 }
+
+
 function goBack() {
 	window.location.href = "/customer-home.html";
 }

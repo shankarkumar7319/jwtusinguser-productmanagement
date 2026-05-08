@@ -114,16 +114,32 @@ async function loadAllProducts() {
   `).join("");
 }
 
-
-
 async function loadProduct() {
+
   const id = new URLSearchParams(window.location.search).get("id");
+
+  if (!id) return;
 
   const res = await fetch(`/admin/products/${id}`, {
     headers: {
       "Authorization": "Bearer " + localStorage.getItem("token")
     }
   });
+
+  if (res.status === 401) {
+     alert("Session expired");
+     return;
+  }
+
+  if (res.status === 403) {
+     alert("Access denied");
+     return;
+  }
+
+  if (!res.ok) {
+    console.log("Failed to load product");
+    return;
+  }
 
   const p = await res.json();
 
@@ -154,9 +170,6 @@ async function loadProduct() {
     </div>
   `;
 }
-
-loadProduct();
-
 
 async function prefillEditForm() {
   const id = getProductIdFromUrl();
@@ -223,46 +236,20 @@ async function deleteProduct(id) {
   const confirmed = confirm("Are you sure you want to delete this product?");
   if (!confirmed) return;
 
-  try {
-    const response = await fetch(`/admin/products/${id}`, {
-      method: "DELETE",
-      headers: {
-        "Authorization": "Bearer " + getToken()
-      }
-    });
-
-    // SAFE RESPONSE HANDLING
-    let message = "";
-
-    try {
-      message = await response.text();
-    } catch (e) {
-      message = "No response body";
+  const response = await fetch(`/admin/products/${id}`, {
+    method: "DELETE",
+    headers: {
+      "Authorization": "Bearer " + getToken()
     }
+  });
 
-    console.log("STATUS:", response.status);
-    console.log("RESPONSE:", message);
-
-    // AUTH FAIL
-    if (response.status === 401 || response.status === 403) {
-      alert("Session expired. Please login again.");
-      window.location.href = "/admin-login.html";
-      return;
-    }
-
-    // FAIL CASE
-    if (!response.ok) {
-      alert("Delete failed: " + message);
-      return;
-    }
- 
-    alert("Product deleted successfully");
-    loadAllProducts();
-
-  } catch (error) {
-    console.error("DELETE ERROR:", error);
-    alert("Backend not reachable or CORS issue");
+  if (!response.ok) {
+    alert("Failed to delete product");
+    return;
   }
+
+  alert("Product deleted successfully");
+  loadAllProducts();
 }
 
 
@@ -288,6 +275,6 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   if (productDetails) {
-    loadProductDetails();
+    loadProduct();
   }
 });

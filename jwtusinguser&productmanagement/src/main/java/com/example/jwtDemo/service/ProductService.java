@@ -48,11 +48,22 @@ public class ProductService {
     }
 
     public String deleteProduct(Long id) {
-        Product existingProduct = productRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
 
-        productRepository.delete(existingProduct);
-        return "Product deleted successfully";
+        try {
+
+            Product existingProduct = productRepository.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Product not found with id: " + id));
+
+            productRepository.delete(existingProduct);
+
+            return "Product deleted successfully";
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            throw new RuntimeException("DELETE ERROR: " + e.getMessage());
+        }
     }
 
     public ProductResponse getProductById(Long id) {

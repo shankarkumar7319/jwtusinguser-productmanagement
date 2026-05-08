@@ -38,7 +38,11 @@ public class AdminProductController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Map<String, String>> deleteProduct(@PathVariable Long id) {
+
+        System.out.println("DELETE CONTROLLER HIT");
+
         String message = productService.deleteProduct(id);
+
         return ResponseEntity.ok(Map.of("message", message));
     }
 

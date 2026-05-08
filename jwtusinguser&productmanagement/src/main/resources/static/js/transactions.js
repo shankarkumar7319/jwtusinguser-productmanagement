@@ -50,22 +50,29 @@ async function loadTransactions() {
 
 	  const row = document.createElement("tr");
 
-	  // ✅ Safe status handling
-	  const status = (txn.status || "UNKNOWN").toUpperCase();
+	  // ✅ SAFE STATUS HANDLING
+	  const status = (txn.status || "PENDING").toUpperCase();
 
 	  let statusClass = "";
+	  let statusText = "";
+
 	  if (status === "SUCCESS") {
 	    statusClass = "success";
-	  } else if (status === "FAILED") {
+	    statusText = "✅ SUCCESS";
+	  } 
+	  else if (status === "FAILED") {
 	    statusClass = "failed";
-	  } else {
+	    statusText = "❌ FAILED";
+	  } 
+	  else {
 	    statusClass = "pending";
+	    statusText = "⏳ PENDING";
 	  }
 
 	  row.innerHTML = `
-	    <td>${txn.paymentId ?? "-"}</td>
-	    <td>${txn.orderId ?? txn.order?.id ?? "-"}</td>
-	    <td class="${statusClass}">${status}</td>
+	    <td>${txn.paymentId || "-"}</td>
+	    <td>${txn.orderId || txn.order?.id || "-"}</td>
+	    <td class="${statusClass}">${statusText}</td>
 	  `;
 
 	  table.appendChild(row);
@@ -79,6 +86,10 @@ async function loadTransactions() {
 function goBack() {
   window.location.href = "/customer-home.html";
 } 
+
+function startShopping() {
+  window.location.href = "/customer-home.html";
+}
 
 function goBackToShopping() {
   window.location.href = "/customer-home.html";

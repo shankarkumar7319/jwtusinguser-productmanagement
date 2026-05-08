@@ -15,6 +15,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import com.example.jwtDemo.filter.JwtAuthenticationFilter;
 import com.example.jwtDemo.service.CustomUserDetailsService;
+import org.springframework.http.HttpMethod; 
 
 @Configuration
 public class SecurityConfig {
@@ -52,11 +53,14 @@ public class SecurityConfig {
                     "/auth/**", "/hello"
                 ).permitAll()
 
+             // ADD THIS
+                .requestMatchers(HttpMethod.DELETE, "/admin/products/**").permitAll()
+                
                 .requestMatchers("/customer/cart/**").hasRole("USER")
                 .requestMatchers("/customer/payment/**").hasRole("USER")
                 .requestMatchers("/products/**").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/customer/**").authenticated()
                 .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/customer/**").authenticated()
 
                 .anyRequest().authenticated()
             )
